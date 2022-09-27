@@ -15,17 +15,35 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="80" />
-            <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="150" />
         </Grid.ColumnDefinitions>
 
-        <Label Content="Sample Size:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" />
-        <Label x:Name="SampleSizeText" Content="{Binding SamplesPerPixel}" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" />
-        <Slider x:Name="SampleSizeSlider" Minimum="0" Maximum="10000" Value="{Binding SamplesPerPixel}" TickFrequency="100" IsSnapToTickEnabled="True" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" />
-        <Button x:Name="StartStopButton" Content="{Binding StartStopLabel}" Command="{Binding StartStopCommand}" Grid.Row="0" Grid.Column="3" />
-        <Label x:Name="TimerLabel" Content="{Binding TimerLabel}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="4" />
+        <Label Grid.Column="0" Grid.Row="0"
+               Content="Sample Size:" VerticalAlignment="Center" />
         
-        <controls:SkiaControl Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="5" Framebuffer="{Binding Framebuffer}" ImageHeight="{Binding ImageHeight}" ImageWidth="{Binding ImageWidth}" />
+        <Label Grid.Column="1" Grid.Row="0"
+               Content="{Binding SamplesPerPixel}" 
+               VerticalAlignment="Center" HorizontalAlignment="Center" />
+        
+        <Slider Grid.Column="2" Grid.Row="0" 
+                Minimum="0" Maximum="10000"
+                Value="{Binding SamplesPerPixel}"
+                TickFrequency="50" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+        
+        <Button Grid.Column="3" Grid.Row="0"
+                Content="{Binding StartStopLabel}"
+                Command="{Binding StartStopCommand}" />
+
+        <Label Grid.Column="4" Grid.Row="0"
+               Content="{Binding TimerLabel}"
+               VerticalAlignment="Center" HorizontalAlignment="Center" />
+        
+        <controls:SkiaControl
+            Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="5" 
+            Framebuffer="{Binding Framebuffer}"
+            ImageHeight="{Binding ImageHeight}"
+            ImageWidth="{Binding ImageWidth}" />
     </Grid>
 </Window>
