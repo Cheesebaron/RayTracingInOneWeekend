@@ -5,11 +5,10 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
-using SkiaSharp;
 
 namespace RayTracingInOneWeekend.Scenes;
 
-public class SceneDrawer
+public class SceneRunner
 {
     private const int DefaultImageWidth = 1280;
     private const int DefaultImageHeight = 768;
@@ -17,16 +16,15 @@ public class SceneDrawer
     
     private readonly Scene _scene;
     private readonly int _samplesPerPixel;
-    private readonly Action<int, int, IDictionary<SKPoint, SKColor>> _invalidateCanvasCallback;
+    private readonly Action<int, int, IDictionary<ScreenPoint, Vector3>> _invalidateCanvasCallback;
     private readonly int _imageWidth;
     private readonly int _imageHeight;
     private readonly int _maxDepth;
+    private readonly ConcurrentDictionary<ScreenPoint, Vector3> _frameBuffer;
 
-    private readonly ConcurrentDictionary<SKPoint, SKColor> _frameBuffer = new();
-
-    public SceneDrawer(Scene scene,
+    public SceneRunner(Scene scene,
         int samplesPerPixel,
-        Action<int, int, IDictionary<SKPoint, SKColor>> invalidateCanvasCallback,
+        Action<int, int, IDictionary<ScreenPoint, Vector3>> invalidateCanvasCallback,
         int imageWidth = DefaultImageWidth, 
         int imageHeight = DefaultImageHeight, 
         int maxDepth = DefaultMaxDepth)
@@ -37,16 +35,9 @@ public class SceneDrawer
         _imageWidth = imageWidth;
         _imageHeight = imageHeight;
         _maxDepth = maxDepth;
-
-        foreach (var y in Enumerable.Range(0, imageHeight))
-        {
-            foreach (var x in Enumerable.Range(0, imageWidth))
-            {
-                _frameBuffer.TryAdd(new SKPoint(x, y), SKColor.Empty);
-            }
-        }
+        _frameBuffer = CreateFramebuffer(imageWidth, imageHeight);
     }
-    
+
     public async Task Run(CancellationToken cancellationToken = default)
     {
         try
@@ -64,8 +55,7 @@ public class SceneDrawer
                         pixelColor += RayColor(ray, _scene, _maxDepth);
                     }
 
-                    var color = pixelColor.GetColor(_samplesPerPixel);
-                    _frameBuffer.TryUpdate(new SKPoint(x, y), color, SKColor.Empty);
+                    _frameBuffer.TryUpdate(new ScreenPoint(x, y), pixelColor, Vector3.Zero);
                 }
 
                 _invalidateCanvasCallback(_imageWidth, _imageHeight, _frameBuffer);
@@ -97,5 +87,15 @@ public class SceneDrawer
         var color = (1.0f - t) * Vector3.One + t * new Vector3(0.5f, 0.7f, 1.0f);
 
         return color;
+    }
+    
+    private static ConcurrentDictionary<ScreenPoint, Vector3> CreateFramebuffer(int imageWidth, int imageHeight)
+    {
+        var fbPreheat = Enumerable.Range(0, imageHeight)
+            .SelectMany(_ => Enumerable.Range(0, imageWidth),
+                (y, x) => new KeyValuePair<ScreenPoint, Vector3>(new ScreenPoint(x, y), Vector3.Zero));
+
+        var fb = new ConcurrentDictionary<ScreenPoint, Vector3>(fbPreheat);
+        return fb;
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -21,7 +22,7 @@ public class MainWindowViewModel : BaseViewModel
     private CancellationTokenSource? _cancellationSource;
     private int _imageWidth;
     private int _imageHeight;
-    private IDictionary<SKPoint, SKColor>? _frameBuffer;
+    private IDictionary<ScreenPoint, Vector3>? _frameBuffer;
 
     public int SamplesPerPixel
     {
@@ -59,7 +60,7 @@ public class MainWindowViewModel : BaseViewModel
         set => SetField(ref _imageWidth, value);
     }
 
-    public IDictionary<SKPoint, SKColor>? Framebuffer
+    public IDictionary<ScreenPoint, Vector3>? Framebuffer
     {
         get => _frameBuffer;
         set => SetField(ref _frameBuffer, value);
@@ -99,7 +100,7 @@ public class MainWindowViewModel : BaseViewModel
     private async Task Run()
     {
         var scene = SceneFactory.CreateScene(SceneType.BookScene, SceneFactory.DefaultAspectRatio);
-        var sceneDrawer = new SceneDrawer(scene, SamplesPerPixel, (w, h, fb) =>
+        var sceneDrawer = new SceneRunner(scene, SamplesPerPixel, (w, h, fb) =>
         {
             ImageWidth = w;
             ImageHeight = h;

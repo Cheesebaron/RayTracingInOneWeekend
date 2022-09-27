@@ -44,6 +44,7 @@
             Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="5" 
             Framebuffer="{Binding Framebuffer}"
             ImageHeight="{Binding ImageHeight}"
-            ImageWidth="{Binding ImageWidth}" />
+            ImageWidth="{Binding ImageWidth}"
+            SamplesPerPixel="{Binding SamplesPerPixel}"/>
     </Grid>
 </Window>
