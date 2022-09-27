@@ -5,9 +5,9 @@ namespace RayTracingInOneWeekend
 {
     public static class RandomUtil
     {
-        private static readonly Random _random = new();
+        private static readonly Random Random = new();
 
-        public static Vector3 RandomVector(float min, float max) =>
+        private static Vector3 RandomVector(float min, float max) =>
             new(NextFloat(min, max), NextFloat(min, max), NextFloat(min, max));
 
         public static Vector3 RandomInUnitSphere()
@@ -30,9 +30,9 @@ namespace RayTracingInOneWeekend
             return p;
         }
 
-        public static float NextFloat() => _random.NextSingle();
+        public static float NextFloat() => Random.NextSingle();
 
         private static float NextFloat(float min, float max) =>
-            _random.NextSingle() * (max - min) + min;
+            Random.NextSingle() * (max - min) + min;
     }
 }

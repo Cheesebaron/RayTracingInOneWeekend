@@ -3,16 +3,16 @@ using System.Numerics;
 
 namespace RayTracingInOneWeekend
 {
-    public record struct Camera
+    public readonly record struct Camera
     {
-        private Vector3 _origin;
-        private Vector3 _horizontal;
-        private Vector3 _vertical;
-        private Vector3 _lowerLeftCorner;
-        private float _lensRadius;
-        private Vector3 _w;
-        private Vector3 _u;
-        private Vector3 _v;
+        private readonly Vector3 _origin;
+        private readonly Vector3 _horizontal;
+        private readonly Vector3 _vertical;
+        private readonly Vector3 _lowerLeftCorner;
+        private readonly float _lensRadius;
+        private readonly Vector3 _w;
+        private readonly Vector3 _u;
+        private readonly Vector3 _v;
 
         public float AspectRatio { get; }
         public float VerticalFieldOfView { get; }
