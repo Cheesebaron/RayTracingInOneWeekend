@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace RayTracingInOneWeekend;
 
-public class Scene
+public sealed class Scene
 {
     public Camera Camera { get; }
 

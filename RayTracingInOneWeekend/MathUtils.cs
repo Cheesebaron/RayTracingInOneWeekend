@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace RayTracingInOneWeekend
+namespace RayTracingInOneWeekend;
+
+public static class MathUtils
 {
-    public static class MathUtils
-    {
-        public static float DegreesToRadians(float degrees) => degrees * MathF.PI / 180.0f;
-    }
+    public static float DegreesToRadians(float degrees) => degrees * MathF.PI / 180.0f;
 }

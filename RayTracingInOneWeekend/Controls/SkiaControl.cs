@@ -93,7 +93,7 @@ public class SkiaControl : Control
 
         public bool Equals(ICustomDrawOperation? other) => false;
     }
-    
+
     public override void Render(DrawingContext context)
     {
         context.Custom(new CustomDrawOp(new Rect(0, 0, Bounds.Width, Bounds.Height), this));
