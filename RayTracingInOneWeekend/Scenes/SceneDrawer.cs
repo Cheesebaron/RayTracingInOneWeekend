@@ -5,7 +5,6 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using SkiaSharp;
 
 namespace RayTracingInOneWeekend.Scenes;
@@ -46,7 +45,7 @@ public class SceneDrawer
 
         try
         {
-            var tasks = Enumerable.Range(0, _imageHeight).Select(y => Task.Run(async () =>
+            var tasks = Enumerable.Range(0, _imageHeight).Select(y => Task.Run(() =>
             {
                 for (var x = 0; x < _imageWidth; ++x)
                 {
@@ -62,9 +61,7 @@ public class SceneDrawer
                     _frameBuffer.TryAdd(new SKPoint(x, y), pixelColor.GetColor(_samplesPerPixel));
                 }
 
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                    _invalidateCanvasCallback(_imageWidth, _imageHeight, _frameBuffer))
-                    .ConfigureAwait(false);
+                _invalidateCanvasCallback(_imageWidth, _imageHeight, _frameBuffer);
             }, cancellationToken));
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
