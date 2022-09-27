@@ -114,6 +114,7 @@ public class MainWindowViewModel : BaseViewModel
         }
         finally
         {
+            StartStopLabel = "Start";
             _stopwatch.Stop();
             _timer.Stop();
             _cancellationSource!.Dispose();
