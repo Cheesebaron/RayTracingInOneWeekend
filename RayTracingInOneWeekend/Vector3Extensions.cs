@@ -6,8 +6,6 @@ namespace RayTracingInOneWeekend;
 
 public static class Vector3Extensions
 {
-    public static Vector3 UnitVector(this Vector3 vector) => vector / vector.Length();
-
     public static SKColor GetColor(this Vector3 vector, int samplesPerPixel)
     {
         var r = vector.X;

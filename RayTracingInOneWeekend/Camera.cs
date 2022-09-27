@@ -1,51 +1,50 @@
 ﻿using System;
 using System.Numerics;
 
-namespace RayTracingInOneWeekend
+namespace RayTracingInOneWeekend;
+
+public readonly record struct Camera
 {
-    public readonly record struct Camera
+    private readonly Vector3 _origin;
+    private readonly Vector3 _horizontal;
+    private readonly Vector3 _vertical;
+    private readonly Vector3 _lowerLeftCorner;
+    private readonly float _lensRadius;
+    private readonly Vector3 _w;
+    private readonly Vector3 _u;
+    private readonly Vector3 _v;
+
+    public float AspectRatio { get; }
+    public float VerticalFieldOfView { get; }
+
+    public Camera(Vector3 lookFrom, Vector3 lookAt, Vector3 vUp, float verticalFieldOfView, float aspectRatio, float aperture, float focusDistance)
     {
-        private readonly Vector3 _origin;
-        private readonly Vector3 _horizontal;
-        private readonly Vector3 _vertical;
-        private readonly Vector3 _lowerLeftCorner;
-        private readonly float _lensRadius;
-        private readonly Vector3 _w;
-        private readonly Vector3 _u;
-        private readonly Vector3 _v;
+        VerticalFieldOfView = verticalFieldOfView;
+        AspectRatio = aspectRatio;
 
-        public float AspectRatio { get; }
-        public float VerticalFieldOfView { get; }
+        var theta = MathUtils.DegreesToRadians(verticalFieldOfView);
+        var h = MathF.Tan(theta / 2);
 
-        public Camera(Vector3 lookFrom, Vector3 lookAt, Vector3 vUp, float verticalFieldOfView, float aspectRatio, float aperture, float focusDistance)
-        {
-            VerticalFieldOfView = verticalFieldOfView;
-            AspectRatio = aspectRatio;
+        var viewPortHeight = 2f * h;
+        var viewPortWidth = aspectRatio * viewPortHeight;
 
-            var theta = MathUtils.DegreesToRadians(verticalFieldOfView);
-            var h = MathF.Tan(theta / 2);
+        _w = Vector3.Normalize(lookFrom - lookAt);
+        _u = Vector3.Normalize(Vector3.Cross(vUp, _w));
+        _v = Vector3.Cross(_w, _u);
 
-            var viewPortHeight = 2f * h;
-            var viewPortWidth = aspectRatio * viewPortHeight;
+        _origin = lookFrom;
+        _horizontal = focusDistance * viewPortWidth * _u;
+        _vertical = focusDistance * viewPortHeight * _v;
+        _lowerLeftCorner = _origin - _horizontal / 2 - _vertical / 2 - focusDistance*_w;
 
-            _w = (lookFrom - lookAt).UnitVector();
-            _u = Vector3.Cross(vUp, _w).UnitVector();
-            _v = Vector3.Cross(_w, _u);
+        _lensRadius = aperture / 2f;
+    }
 
-            _origin = lookFrom;
-            _horizontal = focusDistance * viewPortWidth * _u;
-            _vertical = focusDistance * viewPortHeight * _v;
-            _lowerLeftCorner = _origin - _horizontal / 2 - _vertical / 2 - focusDistance*_w;
+    public Ray GetRay(float s, float t)
+    {
+        var rd = _lensRadius * RandomUtil.RandomInUnitDisk();
+        var offset = _u * rd.X + _v * rd.Y;
 
-            _lensRadius = aperture / 2f;
-        }
-
-        public Ray GetRay(float s, float t)
-        {
-            var rd = _lensRadius * RandomUtil.RandomInUnitDisk();
-            var offset = _u * rd.X + _v * rd.Y;
-
-            return new(_origin + offset, _lowerLeftCorner + s * _horizontal + t * _vertical - _origin - offset);
-        }
+        return new Ray(_origin + offset, _lowerLeftCorner + s * _horizontal + t * _vertical - _origin - offset);
     }
 }

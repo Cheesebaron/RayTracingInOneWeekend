@@ -8,11 +8,11 @@ public abstract record Material
     public abstract bool Scatter(Ray rayIn, RayHit hit, out Vector3 attenuation, out Ray scattered);
 }
 
-public record Metal(Vector3 Albedo, float Fuzzyness) : Material
+public sealed record Metal(Vector3 Albedo, float Fuzzyness) : Material
 {
     public override bool Scatter(Ray rayIn, RayHit hit, out Vector3 attenuation, out Ray scattered)
     {
-        var reflected = Vector3.Reflect(rayIn.Direction.UnitVector(), hit.Normal);
+        var reflected = Vector3.Reflect(Vector3.Normalize(rayIn.Direction), hit.Normal);
         scattered = new Ray(hit.Point, reflected + Fuzzyness * RandomUtil.RandomInUnitSphere());
         attenuation = Albedo;
 
@@ -20,7 +20,7 @@ public record Metal(Vector3 Albedo, float Fuzzyness) : Material
     }
 }
 
-public record Lambertian(Vector3 Albedo) : Material
+public sealed record Lambertian(Vector3 Albedo) : Material
 {
     public override bool Scatter(Ray rayIn, RayHit hit, out Vector3 attenuation, out Ray scattered)
     {
@@ -32,7 +32,7 @@ public record Lambertian(Vector3 Albedo) : Material
     }
 }
 
-public record Dielectric(float RefractionIndex) : Material
+public sealed record Dielectric(float RefractionIndex) : Material
 {
     public override bool Scatter(Ray rayIn, RayHit hit, out Vector3 attenuation, out Ray scattered)
     {

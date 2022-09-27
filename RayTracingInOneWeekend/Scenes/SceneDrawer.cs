@@ -88,7 +88,7 @@ public class SceneDrawer
             return Vector3.Zero;
         }
 
-        var unitDirection = ray.Direction.UnitVector();
+        var unitDirection = Vector3.Normalize(ray.Direction);
         var t = 0.5f * (unitDirection.Y + 1.0f);
         var color = (1.0f - t) * Vector3.One + t * new Vector3(0.5f, 0.7f, 1.0f);
 
