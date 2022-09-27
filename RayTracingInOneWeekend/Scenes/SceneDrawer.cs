@@ -21,7 +21,7 @@ public class SceneDrawer
     private readonly int _imageWidth;
     private readonly int _imageHeight;
     private readonly int _maxDepth;
-    
+
     private readonly ConcurrentDictionary<SKPoint, SKColor> _frameBuffer = new();
 
     public SceneDrawer(Scene scene,
@@ -37,12 +37,18 @@ public class SceneDrawer
         _imageWidth = imageWidth;
         _imageHeight = imageHeight;
         _maxDepth = maxDepth;
+
+        foreach (var y in Enumerable.Range(0, imageHeight))
+        {
+            foreach (var x in Enumerable.Range(0, imageWidth))
+            {
+                _frameBuffer.TryAdd(new SKPoint(x, y), SKColor.Empty);
+            }
+        }
     }
     
     public async Task Run(CancellationToken cancellationToken = default)
     {
-        _frameBuffer.Clear();
-
         try
         {
             var tasks = Enumerable.Range(0, _imageHeight).Select(y => Task.Run(() =>
@@ -58,7 +64,8 @@ public class SceneDrawer
                         pixelColor += RayColor(ray, _scene, _maxDepth);
                     }
 
-                    _frameBuffer.TryAdd(new SKPoint(x, y), pixelColor.GetColor(_samplesPerPixel));
+                    var color = pixelColor.GetColor(_samplesPerPixel);
+                    _frameBuffer.TryUpdate(new SKPoint(x, y), color, SKColor.Empty);
                 }
 
                 _invalidateCanvasCallback(_imageWidth, _imageHeight, _frameBuffer);

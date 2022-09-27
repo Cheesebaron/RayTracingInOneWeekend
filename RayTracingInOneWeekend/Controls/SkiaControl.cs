@@ -85,7 +85,8 @@ public class SkiaControl : Control
             
             foreach (var point in _control.Framebuffer)
             {
-                canvas.DrawPoint(point.Key.X, point.Key.Y, point.Value);
+                if (point.Value != SKColor.Empty)
+                    canvas.DrawPoint(point.Key.X, point.Key.Y, point.Value);
             }
         }
 
