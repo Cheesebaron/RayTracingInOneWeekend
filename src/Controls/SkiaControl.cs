@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Avalonia;
@@ -66,12 +67,13 @@ public class SkiaControl : Control
 
     private sealed class CustomDrawOp : ICustomDrawOperation
     {
+        private readonly SKBitmap? _drawCache;
         private SkiaControl? _control;
 
-        public CustomDrawOp(Rect bounds, SkiaControl control)
+        public CustomDrawOp(SKBitmap? drawCache, SkiaControl control)
         {
+            _drawCache = drawCache;
             _control = control;
-            Bounds = bounds;
         }
         
         public void Dispose()
@@ -84,15 +86,17 @@ public class SkiaControl : Control
 
         public void Render(IDrawingContextImpl context)
         {
-            if (_control?.Framebuffer == null)
+            if (_control?.Framebuffer == null || _drawCache == null)
                 return;
             
             if (context is not ISkiaDrawingContextImpl skiaContext)
                 return;
             
             var canvas = skiaContext.SkCanvas;
+
+            canvas.Save();
             canvas.Clear(SKColors.White);
-            
+
             // flip upside down, pixels are rendered bottom up
             canvas.Scale(1, -1, 0, _control.ImageHeight / 2f);
             var samplesPerPixel = _control.SamplesPerPixel;
@@ -100,18 +104,35 @@ public class SkiaControl : Control
             foreach (var point in _control.Framebuffer)
             {
                 if (point.Value != Vector3.Zero)
-                    canvas.DrawPoint(point.Key.X, point.Key.Y, point.Value.GetColor(samplesPerPixel));
+                {
+                    _drawCache.SetPixel(point.Key.X, point.Key.Y, point.Value.GetColor(samplesPerPixel));
+                }
             }
+
+            canvas.DrawBitmap(_drawCache, 0, 0);
+            
+            canvas.Restore();
         }
 
-        public Rect Bounds { get; }
+        public Rect Bounds { get; init; }
 
         public bool Equals(ICustomDrawOperation? other) => false;
     }
 
+    private SKBitmap? _drawCache;
+
     public override void Render(DrawingContext context)
     {
-        context.Custom(new CustomDrawOp(new Rect(0, 0, Bounds.Width, Bounds.Height), this));
+        if (_drawCache == null && ImageHeight > 0)
+        {
+            _drawCache = new SKBitmap(ImageWidth, ImageHeight, SKColorType.Bgra8888, SKAlphaType.Opaque);
+        }
+        
+        context.Custom(new CustomDrawOp(_drawCache, this)
+        {
+            Bounds = new Rect(0, 0, Bounds.Width, Bounds.Height)
+        });
+
         Dispatcher.UIThread.InvokeAsync(InvalidateVisual, DispatcherPriority.Background);
     }
 }
