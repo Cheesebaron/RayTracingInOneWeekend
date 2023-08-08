@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Avalonia;
@@ -84,15 +83,17 @@ public class SkiaControl : Control
 
         public bool HitTest(Point p) => false;
 
-        public void Render(IDrawingContextImpl context)
+        public void Render(ImmediateDrawingContext context)
         {
             if (_control?.Framebuffer == null || _drawCache == null)
                 return;
             
-            if (context is not ISkiaDrawingContextImpl skiaContext)
+            var leaseFeature = context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
+            if (leaseFeature == null)
                 return;
             
-            var canvas = skiaContext.SkCanvas;
+            using var lease = leaseFeature.Lease();
+            var canvas = lease.SkCanvas;
 
             canvas.Save();
             canvas.Clear(SKColors.White);
